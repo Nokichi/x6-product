@@ -46,5 +46,8 @@ public class ProductService {
             throw new BadRequestException("Укажите наименование товара!");
         }
         ofNullable(product.price()).orElseThrow(() -> new BadRequestException("Заполните цену товара"));
+        if (product.price() < 0) {
+            throw new BadRequestException("Цена не может быть отрицательным значением");
+        }
     }
 }
