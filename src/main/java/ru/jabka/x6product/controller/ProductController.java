@@ -14,6 +14,8 @@ import ru.jabka.x6product.model.Product;
 import ru.jabka.x6product.model.ProductExists;
 import ru.jabka.x6product.service.ProductService;
 
+import java.util.Set;
+
 @RestController
 @Tag(name = "Товары")
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class ProductController {
     }
 
     @GetMapping("/exists")
-    public ProductExists isProductExists(@RequestParam final Long id) {
-        return productService.isProductExists(id);
+    public ProductExists isProductExists(@RequestParam final Set<Long> ids) {
+        return productService.isProductsExists(ids);
     }
 }

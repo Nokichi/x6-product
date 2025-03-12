@@ -8,6 +8,11 @@ import ru.jabka.x6product.exception.BadRequestException;
 import ru.jabka.x6product.model.Product;
 import ru.jabka.x6product.repository.mapper.ProductMapper;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Repository
 @RequiredArgsConstructor
 public class ProductRepository {
@@ -40,14 +45,6 @@ public class ProductRepository {
             WHERE id = :id
             """;
 
-    private static final String EXISTS = """
-            SELECT EXISTS (
-                SELECT 1
-                FROM x6.product
-                WHERE id = :id
-            )
-            """;
-
     public Product insert(Product product) {
         return jdbcTemplate.queryForObject(INSERT, productToSql(product), productMapper);
     }
@@ -64,8 +61,31 @@ public class ProductRepository {
         }
     }
 
-    public boolean isExists(Long id) {
-        return jdbcTemplate.queryForObject(EXISTS, new MapSqlParameterSource("id", id), Boolean.class);
+    public Map<Long, Boolean> isExists(Set<Long> ids) {
+        String req = """
+                SELECT
+                    ids.id,
+                    EXISTS (
+                        SELECT 1
+                        FROM x6.product
+                        WHERE x6.product.id = ids.id
+                    ) AS existence
+                FROM (
+                    VALUES
+                    """;
+        String values = ids.stream()
+                .map(x -> "(" + x + ")")
+                .collect(Collectors.joining(","));
+        String sqlBuilder = req + values + ") AS ids(id)";
+        return jdbcTemplate.query(sqlBuilder, rs -> {
+            Map<Long, Boolean> result = new HashMap<>();
+            while (rs.next()) {
+                Long id = rs.getLong("id");
+                boolean exists = rs.getBoolean("existence");
+                result.put(id, exists);
+            }
+            return result;
+        });
     }
 
     public Product setUsages(Long id) {

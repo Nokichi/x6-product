@@ -13,6 +13,10 @@ import ru.jabka.x6product.model.ProductExists;
 import ru.jabka.x6product.repository.ProductRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -52,21 +56,27 @@ class ProductServiceTest {
     @Test
     void isProductExistsById_found() {
         final Product product = getValidProduct();
-        Mockito.when(productRepository.isExists(product.id())).thenReturn(true);
-        ProductExists exists = new ProductExists(true);
-        ProductExists result = productService.isProductExists(product.id());
-        Assertions.assertEquals(exists, result);
-        Mockito.verify(productRepository).isExists(product.id());
+        Set<Long> ids = Collections.singleton(product.id());
+        Map<Long, Boolean> checkList = new HashMap<>();
+        checkList.put(product.id(), true);
+        Mockito.when(productRepository.isExists(ids)).thenReturn(checkList);
+        ProductExists productExists = new ProductExists(checkList);
+        ProductExists result = productService.isProductsExists(ids);
+        Assertions.assertEquals(productExists, result);
+        Mockito.verify(productRepository).isExists(ids);
     }
 
     @Test
     void isProductExistsById_notFound() {
         long fakeId = 1L;
-        Mockito.when(productRepository.isExists(fakeId)).thenReturn(false);
-        ProductExists exists = new ProductExists(false);
-        ProductExists result = productService.isProductExists(fakeId);
-        Assertions.assertEquals(exists, result);
-        Mockito.verify(productRepository).isExists(fakeId);
+        Set<Long> ids = Collections.singleton(fakeId);
+        Map<Long, Boolean> checkList = new HashMap<>();
+        checkList.put(fakeId, false);
+        Mockito.when(productRepository.isExists(ids)).thenReturn(checkList);
+        ProductExists productExists = new ProductExists(checkList);
+        ProductExists result = productService.isProductsExists(ids);
+        Assertions.assertEquals(productExists, result);
+        Mockito.verify(productRepository).isExists(ids);
     }
 
     @Test
