@@ -10,6 +10,7 @@ import java.time.Duration;
 @EnableCaching
 @Configuration
 public class RedisConfiguration {
+
     @Bean
     public RedisCacheConfiguration redisCacheConfiguration() {
         return RedisCacheConfiguration.defaultCacheConfig()

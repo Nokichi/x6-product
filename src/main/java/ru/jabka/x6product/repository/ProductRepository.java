@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class ProductRepository {
+
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final ProductMapper productMapper;
 
