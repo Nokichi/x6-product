@@ -45,6 +45,17 @@ public class ProductRepository {
             WHERE id = :id
             """;
 
+    private static final String EXISTS = """
+            SELECT
+                ids.id,
+                EXISTS (
+                    SELECT 1
+                    FROM x6.product
+                    WHERE x6.product.id = ids.id
+                ) AS existence
+            FROM (VALUES ? ) AS ids(id)
+            """;
+
     public Product insert(Product product) {
         return jdbcTemplate.queryForObject(INSERT, productToSql(product), productMapper);
     }
@@ -62,21 +73,10 @@ public class ProductRepository {
     }
 
     public Map<Long, Boolean> isExists(Set<Long> ids) {
-        String req = """
-                SELECT
-                    ids.id,
-                    EXISTS (
-                        SELECT 1
-                        FROM x6.product
-                        WHERE x6.product.id = ids.id
-                    ) AS existence
-                FROM (
-                    VALUES
-                    """;
         String values = ids.stream()
                 .map(x -> "(" + x + ")")
                 .collect(Collectors.joining(","));
-        String sqlBuilder = req + values + ") AS ids(id)";
+        String sqlBuilder = EXISTS.replace("?", values);
         return jdbcTemplate.query(sqlBuilder, rs -> {
             Map<Long, Boolean> result = new HashMap<>();
             while (rs.next()) {
