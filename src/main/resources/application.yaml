@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: x6-product
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/x6_product
+    username: test
+    password: ${DB_PG_PWD}
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
+logging:
+  level:
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+server:
+  port: ${APP_PORT:8082}
